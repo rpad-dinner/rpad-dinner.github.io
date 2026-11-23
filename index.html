@@ -1,0 +1,669 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>R-PAD Dinner: Restaurant Rankings and Reviews Near CMU, Pittsburgh</title>
+<meta name="description" content="OpenReview for food around CMU. Rankings, reviews and travel times for restaurants, food trucks and campus dining near Carnegie Mellon University in Pittsburgh, from the R-PAD Lab.">
+<link rel="canonical" href="https://hebu24.github.io/rpad-dinner/">
+<meta property="og:title" content="R-PAD Dinner: Restaurant Rankings Near CMU">
+<meta property="og:description" content="OpenReview for food around CMU, from the R-PAD Lab at Carnegie Mellon University.">
+<meta property="og:url" content="https://hebu24.github.io/rpad-dinner/">
+<meta property="og:type" content="website">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700;800&amp;display=swap">
+  <style>
+    :root {
+      --paper: #fcfaf7;
+      --gray: #ddd;
+      --charcoal: #333;
+      --dark-red: #8c1b13;
+      --heading: #2c3a4a;
+      --link: #3e6775;
+      --light-red: #f7eeee;
+    }
+
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--paper); color: var(--charcoal); font: 1rem/1.55 'Noto Sans', system-ui, sans-serif; }
+    a { color: var(--link); }
+    a:focus-visible { outline: 2px solid var(--dark-red); outline-offset: 4px; }
+    .site-header a:focus-visible { outline-color: var(--paper); }
+    .icon-library { position: absolute; }
+
+    .site-header { background: var(--dark-red); border-bottom: 1px solid var(--dark-red); }
+    .header-content {
+      max-width: 65rem;
+      margin: auto;
+      padding: 0.85rem 1rem;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.5rem 1rem;
+    }
+    .brand { color: var(--heading); font-size: 1.35rem; font-weight: 800; text-decoration: none; }
+    .site-subtitle { color: var(--paper); font-weight: 700; }
+    .slogan { color: var(--dark-red); font-size: 1.3rem; font-weight: 700; font-style: italic; }
+    .site-header nav { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; margin-left: auto; }
+    .site-header nav a { color: var(--paper); text-decoration: none; }
+    .site-header nav a:hover { text-decoration: underline; }
+
+    main { max-width: 65rem; margin: auto; padding: clamp(1.5rem, 5vw, 4rem) 1rem; }
+    .panel { padding: 0; }
+    h1, h2, h3 { margin: 0; color: var(--heading); line-height: 1.2; }
+    h1 { font-size: clamp(2.3rem, 6vw, 4.1rem); }
+    h2 { font-size: clamp(1.7rem, 4vw, 2.35rem); }
+    h3 { font-size: 1.16rem; }
+    p { margin: 0.7rem 0 0; }
+    #home nav { display: flex; flex-wrap: wrap; gap: 0.6rem; margin-top: 1.5rem; }
+    .button {
+      display: inline-block;
+      border: 1px solid var(--dark-red);
+      border-radius: 0.2rem;
+      padding: 0.5rem 0.85rem;
+      text-decoration: none;
+      font-weight: 650;
+    }
+    .button-primary { background: var(--dark-red); color: var(--paper); }
+    .button:hover { background: var(--light-red); color: var(--charcoal); }
+
+    .travel-legend { display: flex; flex-wrap: wrap; gap: 0.5rem 1rem; padding: 0; margin: 1rem 0; list-style: none; }
+    .travel-icon {
+      width: 1.35rem;
+      height: 1.35rem;
+      vertical-align: -0.3rem;
+      border-radius: 0.18rem;
+      background: var(--paper);
+      fill: none;
+      stroke: #646464;
+      stroke-width: 1.6;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+    .rankings { width: 100%; border-collapse: collapse; text-align: left; }
+    .rankings th, .rankings td { padding: 0.55rem clamp(0.3rem, 2vw, 0.9rem); border-bottom: 1px solid var(--gray); }
+    .rankings thead { background: var(--light-red); color: var(--dark-red); }
+    .rankings tbody th { font-weight: 600; overflow-wrap: anywhere; }
+    .rankings td a { white-space: nowrap; }
+    .about-card { border-top: 1px solid var(--gray); margin-top: 1.35rem; padding-top: 1rem; }
+    .back { display: inline-block; margin-top: 1.4rem; }
+    .destination { display: none; }
+    .destination:target { display: block; }
+    main:has(.destination:target) #home { display: none; }
+
+    @media (max-width: 36rem) {
+      .site-header nav { flex-basis: 100%; margin-left: 0; }
+    }
+      .restaurant-meta { margin-bottom: 1.5rem; }
+    .review { margin: 0.65rem 0; padding: 0.8rem 1rem; background: #f5f4f2; }
+    .review h3 { font-size: 1rem; }
+    .review p, .reply p { white-space: pre-wrap; overflow-wrap: anywhere; }
+    .reply { margin: 0.85rem 0 0 1rem; padding-left: 0.75rem; border-left: 2px solid var(--gray); }
+    .review-actions { margin-top: 1rem; }
+    summary { cursor: pointer; color: var(--link); font-weight: 650; }
+    .notice { font-size: 0.9rem; }
+    main.show-restaurant #home { display: none; }
+    .rankings tbody th a { text-underline-offset: 0.16em; }
+      .restaurant-meta { padding-bottom: 0.75rem; }
+    #restaurant-name { margin: 0.7rem 0; font-size: clamp(2rem, 5vw, 3rem); }
+    .field-label { color: var(--dark-red); font-weight: 750; }
+    .review-overview { display: grid; grid-template-columns: repeat(auto-fit, minmax(10rem, 1fr)); gap: 0.75rem; margin: 1rem 0; padding: 0.8rem 1rem; background: #f5f4f2; }
+    .review-overview div { display: grid; }
+    .review-overview dt { font-weight: 700; }
+    .review-overview dd { margin: 0; }
+    .review h3 { color: var(--heading); font-size: 1.05rem; }
+    .review .review-meta { margin-top: 0.2rem; color: #555; font-size: 0.875rem; }
+    .review .badge { display: inline-block; background: var(--light-red); color: var(--dark-red); padding: 0.05rem 0.3rem; font-weight: 650; }
+    .review-fields { margin: 0.5rem 0 0; line-height: 1.45; }
+    .review-fields dt:not(:first-child) { margin-top: 0.42rem; }
+    .review-fields dd { margin: 0; white-space: pre-wrap; overflow-wrap: anywhere; }
+    .rankings .review-count { display: block; color: #555; font-size: 0.85rem; font-weight: 400; }
+      .member-actions { display: flex; flex-wrap: wrap; gap: 0.65rem; margin-top: 1rem; }
+    .member-page form { max-width: 27rem; }
+    .member-page fieldset { border: 0; padding: 0; margin: 1rem 0; display: grid; gap: 0.8rem; }
+    .member-page label { display: grid; gap: 0.25rem; }
+    .member-page input { padding: 0.5rem; font: inherit; }
+    .member-page button:disabled { opacity: 0.65; }
+    .review-form { display: grid; gap: 0.65rem; max-width: 40rem; margin-top: 0.75rem; }
+    .review-form label { display: grid; gap: 0.25rem; }
+    .review-form :is(input,textarea,select) { padding: 0.45rem; font: inherit; }
+    .review-form button { justify-self: start; }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <svg width="0" height="0" aria-hidden="true" class="icon-library">
+    <symbol id="icon-walk" viewBox="0 0 24 24"><circle cx="12" cy="4" r="2"/><path d="m7 21 3-6 2-6m-6 4 4-2 2-2 3 4h4m-7 1 3 3 1 4"/></symbol>
+    <symbol id="icon-bus" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="15" rx="3"/><path d="M4 11h16M7 18v3m10-3v3M8 15h1m6 0h1"/></symbol>
+    <symbol id="icon-car" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="7" rx="2"/><path d="m5 11 2-5h10l2 5M6 18v2m12-2v2M7 14h1m8 0h1"/></symbol>
+  </svg>
+  <header>
+    <div class="site-header">
+      <div class="header-content">
+        <span class="site-subtitle">OpenReview for food around CMU</span>
+        <nav aria-label="Site navigation">
+          <a href="#food-rankings">Food Rankings</a>
+          <a href="#about-rpad">About R-PAD</a>
+        </nav>
+      </div>
+    </div>
+    <div class="header-content">
+      <a class="brand" href="#home">R-PAD Dinner</a>
+      <span class="slogan">Trust our taste</span>
+    </div>
+  </header>
+  <main>
+    <section class="panel" id="home" aria-labelledby="home-title">
+      <h1 id="home-title">R-PAD Dinner</h1>
+      <nav aria-label="Explore R-PAD Dinner">
+        <a class="button button-primary" href="#food-rankings">Food Rankings</a>
+        <a class="button" href="#about-rpad">About R-PAD</a>
+      </nav>
+    </section>
+    <section class="panel destination" id="food-rankings" aria-labelledby="rankings-title">
+      <h2 id="rankings-title">Food Rankings</h2>
+      <details id="add-restaurant" class="review-actions" hidden>
+        <summary class="button">Add Restaurant</summary>
+        <form class="review-form">
+          <label>Restaurant name <input name="name" maxlength="120" required></label>
+          <label>Short description <textarea name="description" maxlength="500" rows="2" required></textarea></label>
+          <label>Address <input name="address" maxlength="240" required></label>
+          <label>Travel mode <select name="mode"><option value="walking">Walk</option><option value="transit">Bus</option><option value="driving">Uber</option></select></label>
+          <label>Estimated minutes from CMU Newell-Simon Hall <input name="minutes" type="number" min="1" max="300" required></label>
+          <button class="button button-primary">Publish restaurant</button>
+        </form>
+      </details>
+      <p id="restaurant-feedback" role="status"></p>
+      <p id="travel-note">Estimated travel times from CMU’s Newell-Simon Hall. Times vary with traffic, bus schedules, and food truck locations.</p>
+      <ul class="travel-legend" aria-label="Travel modes">
+        <li><svg class="travel-icon" aria-hidden="true"><use href="#icon-walk"/></svg> Walk</li>
+        <li><svg class="travel-icon" aria-hidden="true"><use href="#icon-bus"/></svg> Bus</li>
+        <li><svg class="travel-icon" aria-hidden="true"><use href="#icon-car"/></svg> Uber</li>
+      </ul>
+      <table class="rankings" aria-labelledby="rankings-title" aria-describedby="travel-note">
+        <thead><tr><th scope="col">Restaurant</th><th scope="col">Travel time</th><th scope="col">Score</th></tr></thead>
+        <tbody>
+          <tr><th scope="row"><a data-restaurant="the-eatery-at-pitt" href="#restaurant/the-eatery-at-pitt">The Eatery at Pitt</a></th><td><a href="https://www.google.com/maps/dir/?api=1&amp;origin=Newell-Simon%20Hall%2C%20Carnegie%20Mellon%20University%2C%20Pittsburgh%2C%20PA&amp;destination=3990%20Fifth%20Ave%2C%20Pittsburgh%2C%20PA&amp;travelmode=walking" aria-label="Walk, about 14 minutes, open directions"><svg class="travel-icon" aria-hidden="true"><use href="#icon-walk"/></svg> 14 min</a></td><td></td></tr>
+          <tr><th scope="row"><a data-restaurant="noodlehead" href="#restaurant/noodlehead">Noodlehead</a></th><td><a href="https://www.google.com/maps/dir/?api=1&amp;origin=Newell-Simon%20Hall%2C%20Carnegie%20Mellon%20University%2C%20Pittsburgh%2C%20PA&amp;destination=242%20S%20Highland%20Ave%2C%20Pittsburgh%2C%20PA&amp;travelmode=transit" aria-label="Bus, about 25 minutes, open directions"><svg class="travel-icon" aria-hidden="true"><use href="#icon-bus"/></svg> 25 min</a></td><td></td></tr>
+          <tr><th scope="row"><a data-restaurant="zens-noodle-house" href="#restaurant/zens-noodle-house">Zen’s Noodle House</a></th><td><a href="https://www.google.com/maps/dir/?api=1&amp;origin=Newell-Simon%20Hall%2C%20Carnegie%20Mellon%20University%2C%20Pittsburgh%2C%20PA&amp;destination=3531%20Forbes%20Ave%2C%20Pittsburgh%2C%20PA&amp;travelmode=transit" aria-label="Bus, about 20 minutes, open directions"><svg class="travel-icon" aria-hidden="true"><use href="#icon-bus"/></svg> 20 min</a></td><td></td></tr>
+          <tr><th scope="row"><a data-restaurant="tasty-noodle" href="#restaurant/tasty-noodle">Tasty Noodle</a></th><td><a href="https://www.google.com/maps/dir/?api=1&amp;origin=Newell-Simon%20Hall%2C%20Carnegie%20Mellon%20University%2C%20Pittsburgh%2C%20PA&amp;destination=5824%20Forbes%20Ave%2C%20Pittsburgh%2C%20PA&amp;travelmode=transit" aria-label="Bus, about 20 minutes, open directions"><svg class="travel-icon" aria-hidden="true"><use href="#icon-bus"/></svg> 20 min</a></td><td></td></tr>
+          <tr><th scope="row"><a data-restaurant="green-pepper" href="#restaurant/green-pepper">Green Pepper</a></th><td><a href="https://www.google.com/maps/dir/?api=1&amp;origin=Newell-Simon%20Hall%2C%20Carnegie%20Mellon%20University%2C%20Pittsburgh%2C%20PA&amp;destination=2020%20Murray%20Ave%2C%20Pittsburgh%2C%20PA&amp;travelmode=transit" aria-label="Bus, about 25 minutes, open directions"><svg class="travel-icon" aria-hidden="true"><use href="#icon-bus"/></svg> 25 min</a></td><td></td></tr>
+          <tr><th scope="row"><a data-restaurant="kyuramen" href="#restaurant/kyuramen">Kyuramen</a></th><td><a href="https://www.google.com/maps/dir/?api=1&amp;origin=Newell-Simon%20Hall%2C%20Carnegie%20Mellon%20University%2C%20Pittsburgh%2C%20PA&amp;destination=6204%20Penn%20Ave%2C%20Pittsburgh%2C%20PA&amp;travelmode=transit" aria-label="Bus, about 30 minutes, open directions"><svg class="travel-icon" aria-hidden="true"><use href="#icon-bus"/></svg> 30 min</a></td><td></td></tr>
+          <tr><th scope="row"><a data-restaurant="chengdu-gourmet-squirrel-hill" href="#restaurant/chengdu-gourmet-squirrel-hill">Chengdu Gourmet (Squirrel Hill)</a></th><td><a href="https://www.google.com/maps/dir/?api=1&amp;origin=Newell-Simon%20Hall%2C%20Carnegie%20Mellon%20University%2C%20Pittsburgh%2C%20PA&amp;destination=5840%20Forward%20Ave%2C%20Pittsburgh%2C%20PA&amp;travelmode=transit" aria-label="Bus, about 25 minutes, open directions"><svg class="travel-icon" aria-hidden="true"><use href="#icon-bus"/></svg> 25 min</a></td><td></td></tr>
+          <tr><th scope="row"><a data-restaurant="mala-hotpot" href="#restaurant/mala-hotpot">Mala Hotpot</a></th><td><a href="https://www.google.com/maps/dir/?api=1&amp;origin=Newell-Simon%20Hall%2C%20Carnegie%20Mellon%20University%2C%20Pittsburgh%2C%20PA&amp;destination=3608%20Fifth%20Ave%2C%20Pittsburgh%2C%20PA&amp;travelmode=transit" aria-label="Bus, about 20 minutes, open directions"><svg class="travel-icon" aria-hidden="true"><use href="#icon-bus"/></svg> 20 min</a></td><td></td></tr>
+          <tr><th scope="row"><a data-restaurant="butterjoint" href="#restaurant/butterjoint">Butterjoint</a></th><td><a href="https://www.google.com/maps/dir/?api=1&amp;origin=Newell-Simon%20Hall%2C%20Carnegie%20Mellon%20University%2C%20Pittsburgh%2C%20PA&amp;destination=208%20N%20Craig%20St%2C%20Pittsburgh%2C%20PA&amp;travelmode=walking" aria-label="Walk, about 12 minutes, open directions"><svg class="travel-icon" aria-hidden="true"><use href="#icon-walk"/></svg> 12 min</a></td><td></td></tr>
+          <tr><th scope="row"><a data-restaurant="yotea-and-yoka-kitchen" href="#restaurant/yotea-and-yoka-kitchen">Yotea &amp; Yoka Kitchen</a></th><td><a href="https://www.google.com/maps/dir/?api=1&amp;origin=Newell-Simon%20Hall%2C%20Carnegie%20Mellon%20University%2C%20Pittsburgh%2C%20PA&amp;destination=4615%20Centre%20Ave%2C%20Pittsburgh%2C%20PA&amp;travelmode=walking" aria-label="Walk, about 16 minutes, open directions"><svg class="travel-icon" aria-hidden="true"><use href="#icon-walk"/></svg> 16 min</a></td><td></td></tr>
+          <tr><th scope="row"><a data-restaurant="pepper-space" href="#restaurant/pepper-space">Pepper Space</a></th><td><a href="https://www.google.com/maps/dir/?api=1&amp;origin=Newell-Simon%20Hall%2C%20Carnegie%20Mellon%20University%2C%20Pittsburgh%2C%20PA&amp;destination=4609%20Forbes%20Ave%2C%20Pittsburgh%2C%20PA&amp;travelmode=walking" aria-label="Walk, about 6 minutes, open directions"><svg class="travel-icon" aria-hidden="true"><use href="#icon-walk"/></svg> 6 min</a></td><td></td></tr>
+          <tr><th scope="row"><a data-restaurant="chipotle-mexican-grill-oakland" href="#restaurant/chipotle-mexican-grill-oakland">Chipotle Mexican Grill (Oakland)</a></th><td><a href="https://www.google.com/maps/dir/?api=1&amp;origin=Newell-Simon%20Hall%2C%20Carnegie%20Mellon%20University%2C%20Pittsburgh%2C%20PA&amp;destination=3510%20Forbes%20Ave%2C%20Pittsburgh%2C%20PA&amp;travelmode=transit" aria-label="Bus, about 20 minutes, open directions"><svg class="travel-icon" aria-hidden="true"><use href="#icon-bus"/></svg> 20 min</a></td><td></td></tr>
+          <tr><th scope="row"><a data-restaurant="rose-tea-cafe-express" href="#restaurant/rose-tea-cafe-express">Rose Tea Cafe Express</a></th><td><a href="https://www.google.com/maps/dir/?api=1&amp;origin=Newell-Simon%20Hall%2C%20Carnegie%20Mellon%20University%2C%20Pittsburgh%2C%20PA&amp;destination=414%20S%20Craig%20St%2C%20Pittsburgh%2C%20PA&amp;travelmode=walking" aria-label="Walk, about 7 minutes, open directions"><svg class="travel-icon" aria-hidden="true"><use href="#icon-walk"/></svg> 7 min</a></td><td></td></tr>
+          <tr><th scope="row"><a data-restaurant="meet-bao-former-location" href="#restaurant/meet-bao-former-location">Meet Bao (former location)</a></th><td><a href="https://www.google.com/maps/dir/?api=1&amp;origin=Newell-Simon%20Hall%2C%20Carnegie%20Mellon%20University%2C%20Pittsburgh%2C%20PA&amp;destination=114%20Atwood%20St%2C%20Pittsburgh%2C%20PA&amp;travelmode=transit" aria-label="Bus, about 20 minutes, open directions"><svg class="travel-icon" aria-hidden="true"><use href="#icon-bus"/></svg> 20 min</a></td><td></td></tr>
+          <tr><th scope="row"><a data-restaurant="ali-baba-restaurant" href="#restaurant/ali-baba-restaurant">Ali Baba Restaurant</a></th><td><a href="https://www.google.com/maps/dir/?api=1&amp;origin=Newell-Simon%20Hall%2C%20Carnegie%20Mellon%20University%2C%20Pittsburgh%2C%20PA&amp;destination=404%20S%20Craig%20St%2C%20Pittsburgh%2C%20PA&amp;travelmode=walking" aria-label="Walk, about 7 minutes, open directions"><svg class="travel-icon" aria-hidden="true"><use href="#icon-walk"/></svg> 7 min</a></td><td></td></tr>
+          <tr><th scope="row"><a data-restaurant="cava-oakland" href="#restaurant/cava-oakland">CAVA (Oakland)</a></th><td><a href="https://www.google.com/maps/dir/?api=1&amp;origin=Newell-Simon%20Hall%2C%20Carnegie%20Mellon%20University%2C%20Pittsburgh%2C%20PA&amp;destination=3615%20Forbes%20Ave%2C%20Pittsburgh%2C%20PA&amp;travelmode=transit" aria-label="Bus, about 20 minutes, open directions"><svg class="travel-icon" aria-hidden="true"><use href="#icon-bus"/></svg> 20 min</a></td><td></td></tr>
+          <tr><th scope="row"><a data-restaurant="roots-natural-kitchen-oakland" href="#restaurant/roots-natural-kitchen-oakland">Roots Natural Kitchen (Oakland)</a></th><td><a href="https://www.google.com/maps/dir/?api=1&amp;origin=Newell-Simon%20Hall%2C%20Carnegie%20Mellon%20University%2C%20Pittsburgh%2C%20PA&amp;destination=3610%20Forbes%20Ave%2C%20Pittsburgh%2C%20PA&amp;travelmode=transit" aria-label="Bus, about 20 minutes, open directions"><svg class="travel-icon" aria-hidden="true"><use href="#icon-bus"/></svg> 20 min</a></td><td></td></tr>
+          <tr><th scope="row"><a data-restaurant="senyai-thai-kitchen" href="#restaurant/senyai-thai-kitchen">Senyai Thai Kitchen</a></th><td><a href="https://www.google.com/maps/dir/?api=1&amp;origin=Newell-Simon%20Hall%2C%20Carnegie%20Mellon%20University%2C%20Pittsburgh%2C%20PA&amp;destination=5865%20Ellsworth%20Ave%2C%20Pittsburgh%2C%20PA&amp;travelmode=transit" aria-label="Bus, about 25 minutes, open directions"><svg class="travel-icon" aria-hidden="true"><use href="#icon-bus"/></svg> 25 min</a></td><td></td></tr>
+          <tr><th scope="row"><a data-restaurant="taiwanese-bistro-cafe-33" href="#restaurant/taiwanese-bistro-cafe-33">Taiwanese Bistro Cafe 33</a></th><td><a href="https://www.google.com/maps/dir/?api=1&amp;origin=Newell-Simon%20Hall%2C%20Carnegie%20Mellon%20University%2C%20Pittsburgh%2C%20PA&amp;destination=1711%20Shady%20Ave%2C%20Pittsburgh%2C%20PA&amp;travelmode=transit" aria-label="Bus, about 20 minutes, open directions"><svg class="travel-icon" aria-hidden="true"><use href="#icon-bus"/></svg> 20 min</a></td><td></td></tr>
+          <tr><th scope="row"><a data-restaurant="piada-italian-street-food-oakland" href="#restaurant/piada-italian-street-food-oakland">Piada Italian Street Food (Oakland)</a></th><td><a href="https://www.google.com/maps/dir/?api=1&amp;origin=Newell-Simon%20Hall%2C%20Carnegie%20Mellon%20University%2C%20Pittsburgh%2C%20PA&amp;destination=3600%20Forbes%20Ave%2C%20Pittsburgh%2C%20PA&amp;travelmode=transit" aria-label="Bus, about 20 minutes, open directions"><svg class="travel-icon" aria-hidden="true"><use href="#icon-bus"/></svg> 20 min</a></td><td></td></tr>
+          <tr><th scope="row"><a data-restaurant="surf-poke" href="#restaurant/surf-poke">Surf Poke</a></th><td><a href="https://www.google.com/maps/dir/?api=1&amp;origin=Newell-Simon%20Hall%2C%20Carnegie%20Mellon%20University%2C%20Pittsburgh%2C%20PA&amp;destination=5400%20Centre%20Ave%2C%20Pittsburgh%2C%20PA&amp;travelmode=transit" aria-label="Bus, about 20 minutes, open directions"><svg class="travel-icon" aria-hidden="true"><use href="#icon-bus"/></svg> 20 min</a></td><td></td></tr>
+          <tr><th scope="row"><a data-restaurant="thai-gourmet-food-truck" href="#restaurant/thai-gourmet-food-truck">Thai Gourmet Food Truck</a></th><td><a href="https://www.google.com/maps/dir/?api=1&amp;origin=Newell-Simon%20Hall%2C%20Carnegie%20Mellon%20University%2C%20Pittsburgh%2C%20PA&amp;destination=4380%20Bigelow%20Blvd%2C%20Pittsburgh%2C%20PA&amp;travelmode=walking" aria-label="Walk, about 18 minutes, open directions"><svg class="travel-icon" aria-hidden="true"><use href="#icon-walk"/></svg> 18 min</a></td><td></td></tr>
+          <tr><th scope="row"><a data-restaurant="india-on-wheels" href="#restaurant/india-on-wheels">India on Wheels</a></th><td><a href="https://www.google.com/maps/dir/?api=1&amp;origin=Newell-Simon%20Hall%2C%20Carnegie%20Mellon%20University%2C%20Pittsburgh%2C%20PA&amp;destination=Margaret%20Morrison%20St%20near%20Forbes%20Ave%2C%20Carnegie%20Mellon%20University%2C%20Pittsburgh%2C%20PA&amp;travelmode=walking" aria-label="Walk, about 11 minutes, open directions"><svg class="travel-icon" aria-hidden="true"><use href="#icon-walk"/></svg> 11 min</a></td><td></td></tr>
+          <tr><th scope="row"><a data-restaurant="thai-and-noodle-outlet" href="#restaurant/thai-and-noodle-outlet">Thai &amp; Noodle Outlet</a></th><td><a href="https://www.google.com/maps/dir/?api=1&amp;origin=Newell-Simon%20Hall%2C%20Carnegie%20Mellon%20University%2C%20Pittsburgh%2C%20PA&amp;destination=5813%20Forbes%20Ave%2C%20Pittsburgh%2C%20PA&amp;travelmode=transit" aria-label="Bus, about 20 minutes, open directions"><svg class="travel-icon" aria-hidden="true"><use href="#icon-bus"/></svg> 20 min</a></td><td></td></tr>
+          <tr><th scope="row"><a data-restaurant="yue-bai-wei" href="#restaurant/yue-bai-wei">Yue Bai Wei</a></th><td><a href="https://www.google.com/maps/dir/?api=1&amp;origin=Newell-Simon%20Hall%2C%20Carnegie%20Mellon%20University%2C%20Pittsburgh%2C%20PA&amp;destination=5874%20Forbes%20Ave%2C%20Pittsburgh%2C%20PA&amp;travelmode=transit" aria-label="Bus, about 20 minutes, open directions"><svg class="travel-icon" aria-hidden="true"><use href="#icon-bus"/></svg> 20 min</a></td><td></td></tr>
+          <tr><th scope="row"><a data-restaurant="everyday-noodles" href="#restaurant/everyday-noodles">Everyday Noodles</a></th><td><a href="https://www.google.com/maps/dir/?api=1&amp;origin=Newell-Simon%20Hall%2C%20Carnegie%20Mellon%20University%2C%20Pittsburgh%2C%20PA&amp;destination=5875%20Forbes%20Ave%2C%20Pittsburgh%2C%20PA&amp;travelmode=transit" aria-label="Bus, about 20 minutes, open directions"><svg class="travel-icon" aria-hidden="true"><use href="#icon-bus"/></svg> 20 min</a></td><td></td></tr>
+          <tr><th scope="row"><a data-restaurant="primanti-bros-oakland" href="#restaurant/primanti-bros-oakland">Primanti Bros. (Oakland)</a></th><td><a href="https://www.google.com/maps/dir/?api=1&amp;origin=Newell-Simon%20Hall%2C%20Carnegie%20Mellon%20University%2C%20Pittsburgh%2C%20PA&amp;destination=3803%20Forbes%20Ave%2C%20Pittsburgh%2C%20PA&amp;travelmode=walking" aria-label="Walk, about 17 minutes, open directions"><svg class="travel-icon" aria-hidden="true"><use href="#icon-walk"/></svg> 17 min</a></td><td></td></tr>
+          <tr><th scope="row"><a data-restaurant="chaykhana" href="#restaurant/chaykhana">Chaykhana</a></th><td><a href="https://www.google.com/maps/dir/?api=1&amp;origin=Newell-Simon%20Hall%2C%20Carnegie%20Mellon%20University%2C%20Pittsburgh%2C%20PA&amp;destination=410%20S%20Main%20St%2C%20Pittsburgh%2C%20PA&amp;travelmode=driving" aria-label="Uber, about 25 minutes, open directions"><svg class="travel-icon" aria-hidden="true"><use href="#icon-car"/></svg> 25 min</a></td><td></td></tr>
+          <tr><th scope="row"><a data-restaurant="meet-pho" href="#restaurant/meet-pho">Meet Pho</a></th><td><a href="https://www.google.com/maps/dir/?api=1&amp;origin=Newell-Simon%20Hall%2C%20Carnegie%20Mellon%20University%2C%20Pittsburgh%2C%20PA&amp;destination=114%20Atwood%20St%2C%20Pittsburgh%2C%20PA&amp;travelmode=transit" aria-label="Bus, about 20 minutes, open directions"><svg class="travel-icon" aria-hidden="true"><use href="#icon-bus"/></svg> 20 min</a></td><td></td></tr>
+          <tr><th scope="row"><a data-restaurant="pho-van" href="#restaurant/pho-van">Pho Van</a></th><td><a href="https://www.google.com/maps/dir/?api=1&amp;origin=Newell-Simon%20Hall%2C%20Carnegie%20Mellon%20University%2C%20Pittsburgh%2C%20PA&amp;destination=2120%20Penn%20Ave%2C%20Pittsburgh%2C%20PA&amp;travelmode=driving" aria-label="Uber, about 20 minutes, open directions"><svg class="travel-icon" aria-hidden="true"><use href="#icon-car"/></svg> 20 min</a></td><td></td></tr>
+          <tr><th scope="row"><a data-restaurant="chikn-oakland" href="#restaurant/chikn-oakland">CHiKN (Oakland)</a></th><td><a href="https://www.google.com/maps/dir/?api=1&amp;origin=Newell-Simon%20Hall%2C%20Carnegie%20Mellon%20University%2C%20Pittsburgh%2C%20PA&amp;destination=3712%20Forbes%20Ave%2C%20Pittsburgh%2C%20PA&amp;travelmode=walking" aria-label="Walk, about 18 minutes, open directions"><svg class="travel-icon" aria-hidden="true"><use href="#icon-walk"/></svg> 18 min</a></td><td></td></tr>
+          <tr><th scope="row"><a data-restaurant="raising-canes-chicken-fingers-oakland" href="#restaurant/raising-canes-chicken-fingers-oakland">Raising Cane’s Chicken Fingers (Oakland)</a></th><td><a href="https://www.google.com/maps/dir/?api=1&amp;origin=Newell-Simon%20Hall%2C%20Carnegie%20Mellon%20University%2C%20Pittsburgh%2C%20PA&amp;destination=3610%20Fifth%20Ave%2C%20Pittsburgh%2C%20PA&amp;travelmode=transit" aria-label="Bus, about 20 minutes, open directions"><svg class="travel-icon" aria-hidden="true"><use href="#icon-bus"/></svg> 20 min</a></td><td></td></tr>
+          <tr><th scope="row"><a data-restaurant="mcdonalds-oakland" href="#restaurant/mcdonalds-oakland">McDonald’s (Oakland)</a></th><td><a href="https://www.google.com/maps/dir/?api=1&amp;origin=Newell-Simon%20Hall%2C%20Carnegie%20Mellon%20University%2C%20Pittsburgh%2C%20PA&amp;destination=3708%20Forbes%20Ave%2C%20Pittsburgh%2C%20PA&amp;travelmode=walking" aria-label="Walk, about 18 minutes, open directions"><svg class="travel-icon" aria-hidden="true"><use href="#icon-walk"/></svg> 18 min</a></td><td></td></tr>
+          <tr><th scope="row"><a data-restaurant="grapow" href="#restaurant/grapow">Grapow</a></th><td><a href="https://www.google.com/maps/dir/?api=1&amp;origin=Newell-Simon%20Hall%2C%20Carnegie%20Mellon%20University%2C%20Pittsburgh%2C%20PA&amp;destination=411%20S%20Craig%20St%2C%20Pittsburgh%2C%20PA&amp;travelmode=walking" aria-label="Walk, about 7 minutes, open directions"><svg class="travel-icon" aria-hidden="true"><use href="#icon-walk"/></svg> 7 min</a></td><td></td></tr>
+          <tr><th scope="row"><a data-restaurant="hunan-express" href="#restaurant/hunan-express">Hunan Express</a></th><td><a href="https://www.google.com/maps/dir/?api=1&amp;origin=Newell-Simon%20Hall%2C%20Carnegie%20Mellon%20University%2C%20Pittsburgh%2C%20PA&amp;destination=Newell-Simon%20Hall%20Atrium%2C%20Carnegie%20Mellon%20University%2C%20Pittsburgh%2C%20PA&amp;travelmode=walking" aria-label="Walk, about 2 minutes, open directions"><svg class="travel-icon" aria-hidden="true"><use href="#icon-walk"/></svg> 2 min</a></td><td></td></tr>
+          <tr><th scope="row"><a data-restaurant="taste-of-india" href="#restaurant/taste-of-india">Taste of India</a></th><td><a href="https://www.google.com/maps/dir/?api=1&amp;origin=Newell-Simon%20Hall%2C%20Carnegie%20Mellon%20University%2C%20Pittsburgh%2C%20PA&amp;destination=Resnik%20House%2C%20Carnegie%20Mellon%20University%2C%20Pittsburgh%2C%20PA&amp;travelmode=walking" aria-label="Walk, about 9 minutes, open directions"><svg class="travel-icon" aria-hidden="true"><use href="#icon-walk"/></svg> 9 min</a></td><td></td></tr>
+          <tr><th scope="row"><a data-restaurant="tahini" href="#restaurant/tahini">Tahini</a></th><td><a href="https://www.google.com/maps/dir/?api=1&amp;origin=Newell-Simon%20Hall%2C%20Carnegie%20Mellon%20University%2C%20Pittsburgh%2C%20PA&amp;destination=Tartans%20Pavilion%2C%20Carnegie%20Mellon%20University%2C%20Pittsburgh%2C%20PA&amp;travelmode=walking" aria-label="Walk, about 9 minutes, open directions"><svg class="travel-icon" aria-hidden="true"><use href="#icon-walk"/></svg> 9 min</a></td><td></td></tr>
+          <tr><th scope="row"><a data-restaurant="scottys-market-by-salems" href="#restaurant/scottys-market-by-salems">Scotty’s Market by Salem’s</a></th><td><a href="https://www.google.com/maps/dir/?api=1&amp;origin=Newell-Simon%20Hall%2C%20Carnegie%20Mellon%20University%2C%20Pittsburgh%2C%20PA&amp;destination=Forbes%20Beeler%20Apartments%2C%20Carnegie%20Mellon%20University%2C%20Pittsburgh%2C%20PA&amp;travelmode=walking" aria-label="Walk, about 10 minutes, open directions"><svg class="travel-icon" aria-hidden="true"><use href="#icon-walk"/></svg> 10 min</a></td><td></td></tr>
+          <tr><th scope="row"><a data-restaurant="shake-shack-the-terminal" href="#restaurant/shake-shack-the-terminal">Shake Shack (The Terminal)</a></th><td><a href="https://www.google.com/maps/dir/?api=1&amp;origin=Newell-Simon%20Hall%2C%20Carnegie%20Mellon%20University%2C%20Pittsburgh%2C%20PA&amp;destination=1767%20Smallman%20St%2C%20Pittsburgh%2C%20PA&amp;travelmode=driving" aria-label="Uber, about 20 minutes, open directions"><svg class="travel-icon" aria-hidden="true"><use href="#icon-car"/></svg> 20 min</a></td><td></td></tr>
+          <tr><th scope="row"><a data-restaurant="oishii-bento" href="#restaurant/oishii-bento">Oishii Bento</a></th><td><a href="https://www.google.com/maps/dir/?api=1&amp;origin=Newell-Simon%20Hall%2C%20Carnegie%20Mellon%20University%2C%20Pittsburgh%2C%20PA&amp;destination=119%20Oakland%20Ave%2C%20Pittsburgh%2C%20PA&amp;travelmode=walking" aria-label="Walk, about 18 minutes, open directions"><svg class="travel-icon" aria-hidden="true"><use href="#icon-walk"/></svg> 18 min</a></td><td></td></tr>
+        </tbody>
+      </table>
+      <a class="back" href="#home">Back to home</a>
+    </section>
+    <section class="panel destination" id="about-rpad" aria-labelledby="about-title">
+      <h2 id="about-title">About R-PAD</h2>
+      <section class="about-card" aria-labelledby="lab-title">
+        <h3 id="lab-title">The R-PAD Lab</h3>
+        <p>The Robots Perceiving and Doing (R-PAD) Lab at Carnegie Mellon University’s Robotics Institute studies how robots perceive and act in everyday environments.</p>
+        <p><a href="https://r-pad.github.io/">Visit the R-PAD Lab website</a></p>
+      </section>
+      <section class="about-card" aria-labelledby="vote-title">
+        <h3 id="vote-title">Vote as an R-PAD member</h3>
+        <p>Only approved R-PAD members can post reviews and comments.</p>
+        <p id="member-session" role="status"></p>
+        <button id="member-logout" class="button" type="button" hidden>Log out</button>
+        <nav class="member-actions" aria-label="Member account">
+          <a class="button button-primary" href="#member-register">Register</a>
+          <a class="button" href="#member-login">Log in</a>
+        </nav>
+        <h4>Restaurant rating rubric</h4>
+        <dl>
+          <dt><strong>5 · Strong Accept</strong></dt><dd>Exceptional. Highly recommended and worth a special trip.</dd>
+          <dt><strong>4 · Weak Accept</strong></dt><dd>Good overall. Worth recommending, with minor drawbacks.</dd>
+          <dt><strong>3 · Borderline</strong></dt><dd>Mixed experience. The strengths and weaknesses are about evenly balanced.</dd>
+          <dt><strong>2 · Weak Reject</strong></dt><dd>Some redeeming qualities, but hard to recommend overall.</dd>
+          <dt><strong>1 · Strong Reject</strong></dt><dd>Major issues. Would not recommend.</dd>
+          <dt><strong>0 · Desk Reject</strong></dt><dd>Falls below the minimum bar for a recommendation.</dd>
+        </dl>
+      </section>
+      <a class="back" href="#home">Back to home</a>
+    </section>
+    <section class="panel" id="restaurant-page" aria-labelledby="restaurant-name" hidden>
+      <a href="#food-rankings">Back to Food Rankings</a>
+      <div class="restaurant-meta">
+        <h2 id="restaurant-name" tabindex="-1"></h2>
+        <p><strong class="field-label">Summary</strong></p>
+        <p id="restaurant-description"></p>
+        <p id="restaurant-travel"></p>
+      </div>
+      <h3>Restaurant reviews</h3>
+      <dl class="review-overview">
+        <div><dt>Review count</dt><dd id="review-count">0</dd></div>
+        <div><dt>Average rating</dt><dd id="review-average">—</dd></div>
+      </dl>
+      <p id="review-status" class="notice" role="status"></p>
+      <div id="review-list"></div>
+      <p class="notice" id="review-guest"><a href="#member-login">Log in</a> as an approved R-PAD member to review or comment.</p>
+      <details class="review-actions" id="review-entry" hidden>
+        <summary>Add or edit your review</summary>
+        <form id="review-form" class="review-form">
+          <label>Rating <select name="rating" required>
+            <option value="">Select a rating</option>
+            <option value="5">5 · Strong Accept</option><option value="4">4 · Weak Accept</option>
+            <option value="3">3 · Borderline</option><option value="2">2 · Weak Reject</option><option value="1">1 · Strong Reject</option><option value="0">0 · Desk Reject</option>
+          </select></label>
+          <label>Strengths <textarea name="strengths" rows="3" maxlength="2000" required></textarea></label>
+          <label>Weaknesses <textarea name="weaknesses" rows="3" maxlength="2000" required></textarea></label>
+          <button class="button button-primary">Publish review</button>
+        </form>
+      </details>
+      <details class="review-actions">
+        <summary>Example review</summary>
+        <article class="review">
+          <h3>Review by Sample Reviewer</h3>
+          <p class="review-meta"><span class="badge">Example review</span> Illustrative only</p>
+          <dl class="review-fields">
+            <dt class="field-label">Rating</dt><dd>4 / 5 · Weak Accept</dd>
+            <dt class="field-label">Strengths</dt><dd>The menu was easy to navigate and the portions were generous.</dd>
+            <dt class="field-label">Weaknesses</dt><dd>There was limited seating during the lunch rush.</dd>
+          </dl>
+          <p class="reply"><strong>Example comment:</strong> How long did you wait for a table?</p>
+        </article>
+      </details>
+    </section>
+    <section class="panel destination member-page" id="member-register" aria-labelledby="register-title">
+      <a href="#about-rpad">Back to About R-PAD</a>
+      <h2 id="register-title">Register as an R-PAD member</h2>
+      <p>New accounts require approval. Approved members can publish reviews and comments.</p>
+      <p id="register-status" role="status"></p>
+      <form aria-describedby="register-status">
+        <fieldset disabled>
+          <label>Full name <input name="full-name" autocomplete="name" minlength="2" maxlength="80" required></label>
+          <label>Reviewer ID <input name="reviewer-id" autocomplete="username" required></label>
+          <label>Password <input name="password" type="password" autocomplete="new-password" minlength="8" maxlength="72" required></label>
+          <button type="submit" class="button button-primary">Request approval</button>
+        </fieldset>
+      </form>
+      <a href="#member-login">Already registered? Log in</a>
+    </section>
+    <section class="panel destination member-page" id="member-login" aria-labelledby="login-title">
+      <a href="#about-rpad">Back to About R-PAD</a>
+      <h2 id="login-title">R-PAD member login</h2>
+      <p id="login-status" role="status"></p>
+      <form aria-describedby="login-status">
+        <fieldset disabled>
+          <label>Reviewer ID <input name="reviewer-id" autocomplete="username" required></label>
+          <label>Password <input name="password" type="password" autocomplete="current-password" required></label>
+          <button type="submit" class="button button-primary">Log in</button>
+        </fieldset>
+      </form>
+      <a href="#member-register">Need an account? Register</a>
+    </section>
+  </main>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    const ratingLabels = ['Desk Reject', 'Strong Reject', 'Weak Reject', 'Borderline', 'Weak Accept', 'Strong Accept'];
+    const restaurantDescriptions = {"the-eatery-at-pitt":"Pitt’s campus dining hall offers multiple stations, from ramen and pasta to sandwiches and comfort food.","noodlehead":"This Shadyside noodle shop serves dishes inspired by Thai street food.","zens-noodle-house":"This Oakland noodle shop serves ramen, noodle soups, and stir-fried noodles.","tasty-noodle":"This Squirrel Hill noodle shop specializes in Xi’an-style hand-pulled noodles.","green-pepper":"This Squirrel Hill Korean restaurant serves dishes such as bibimbap and Korean barbecue.","kyuramen":"This East Liberty location of Kyuramen serves Japanese-style ramen.","chengdu-gourmet-squirrel-hill":"This Squirrel Hill restaurant specializes in Sichuan cooking.","mala-hotpot":"This Oakland hot pot spot lets diners choose ingredients for mala soup or stir-fry.","butterjoint":"This North Oakland neighborhood spot serves food and drinks on North Craig Street.","yotea-and-yoka-kitchen":"This North Oakland spot serves Sichuan-style mala hot pots and snacks.","pepper-space":"This Forbes Avenue restaurant serves Chinese dishes with Sichuan flavors.","chipotle-mexican-grill-oakland":"This Oakland location serves build-your-own burritos, bowls, and tacos.","rose-tea-cafe-express":"This Craig Street takeout spot serves Taiwanese and Chinese dishes.","meet-bao-former-location":"This former Oakland dumpling shop served Taiwanese bao and dumplings.","ali-baba-restaurant":"This Craig Street restaurant serves Middle Eastern food.","cava-oakland":"This Oakland location serves customizable Mediterranean bowls and pitas.","roots-natural-kitchen-oakland":"This Forbes Avenue location serves grain bowls and salads.","senyai-thai-kitchen":"This Shadyside Thai restaurant serves curries, noodles, and other Thai dishes.","taiwanese-bistro-cafe-33":"This Squirrel Hill bistro serves Taiwanese comfort food, including soup dumplings and braised pork rice.","piada-italian-street-food-oakland":"This Oakland location serves Italian-style wraps, pasta, and salads.","surf-poke":"This Centre Avenue spot serves Hawaiian-style poke bowls, sushi, and bubble tea.","thai-gourmet-food-truck":"This Oakland food truck serves Thai food near Bigelow Boulevard.","india-on-wheels":"This Pittsburgh food truck serves Indian dishes such as curries and biryani.","thai-and-noodle-outlet":"This Squirrel Hill restaurant serves Thai noodle dishes, fried rice, and curries.","yue-bai-wei":"This Squirrel Hill restaurant serves Chinese dishes on Forbes Avenue.","everyday-noodles":"This Squirrel Hill restaurant serves noodles, soups, and dumplings.","primanti-bros-oakland":"This Oakland branch serves Pittsburgh-style sandwiches with fries and slaw.","chaykhana":"This West End restaurant serves Central Asian dishes.","meet-pho":"This Atwood Street spot serves customizable pho.","pho-van":"This Strip District restaurant serves Vietnamese pho and other Vietnamese dishes.","chikn-oakland":"This Oakland spot specializes in hot chicken.","raising-canes-chicken-fingers-oakland":"This Oakland location serves chicken fingers, fries, and Texas toast.","mcdonalds-oakland":"This Forbes Avenue location serves McDonald’s burgers, fries, and other fast-food staples.","grapow":"This Craig Street restaurant serves Thai food.","hunan-express":"This CMU dining spot serves Asian rice bowls and bubble tea.","taste-of-india":"This CMU dining spot serves Indian food in Resnik House.","tahini":"This Resnik House dining spot serves kosher Mediterranean food.","scottys-market-by-salems":"This campus market at Forbes and Beeler sells groceries and prepared hot meals.","shake-shack-the-terminal":"This Strip District location serves burgers, fries, and shakes at The Terminal.","oishii-bento":"This Oakland restaurant serves Korean and Japanese comfort food."};
+    const api = window.supabase?.createClient('https://gwpymhlxpmqxqzpkpyyt.supabase.co', 'sb_publishable_TpeePJTIw36CMePn0xprZw_i1VCH37M');
+    const page = document.querySelector('#restaurant-page');
+    const list = document.querySelector('#review-list');
+    const status = document.querySelector('#review-status');
+    const entry = document.querySelector('#review-entry');
+    const reviewForm = document.querySelector('#review-form');
+    const logout = document.querySelector('#member-logout');
+    let active = '';
+    let reviewer = null;
+    let loadVersion = 0;
+
+    function add(parent, tag, content, className) {
+      const element = document.createElement(tag);
+      element.textContent = content;
+      if (className) element.className = className;
+      parent.append(element);
+      return element;
+    }
+
+    async function accountEmail(id) {
+      const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(id));
+      const hex = Array.from(new Uint8Array(digest), byte => byte.toString(16).padStart(2, '0')).join('');
+      return hex + '@id.rpad-dinner.example.com';
+    }
+
+    function reviewerId(data) {
+      const id = data.get('reviewer-id').trim();
+      if (!id) throw new Error('Enter a Reviewer ID.');
+      return id;
+    }
+
+    function syncControls() {
+      entry.hidden = !reviewer;
+      document.querySelector('#add-restaurant').hidden = !reviewer;
+      logout.hidden = !reviewer;
+      document.querySelector('#review-guest').hidden = Boolean(reviewer);
+      document.querySelector('#member-session').textContent = reviewer ? 'Signed in as ' + reviewer : '';
+    }
+
+    async function refreshMember() {
+      const { data: { session } } = await api.auth.getSession();
+      reviewer = session ? (await api.rpc('member_status')).data : null;
+      syncControls();
+    }
+
+    function wireAccountForm(id, handler) {
+      const form = document.querySelector('#member-' + id + ' form');
+      const feedback = document.querySelector('#' + id + '-status');
+      const fields = form.querySelector('fieldset');
+      fields.disabled = !api;
+      if (!api) feedback.textContent = 'Account service could not load. Refresh to try again.';
+      form.addEventListener('submit', async event => {
+        event.preventDefault();
+        const data = new FormData(form);
+        fields.disabled = true;
+        try {
+          feedback.textContent = await handler(data);
+          form.reset();
+        } catch (error) {
+          feedback.textContent = error.message || 'Account service is unavailable. Try again.';
+        } finally {
+          fields.disabled = false;
+        }
+      });
+    }
+
+    wireAccountForm('register', async data => {
+      const id = reviewerId(data);
+      const { error } = await api.auth.signUp({
+        email: await accountEmail(id),
+        password: data.get('password'),
+        options: { data: { full_name: data.get('full-name').trim(), reviewer_id: id } }
+      });
+      if (error?.code === 'user_already_exists' || error?.code === 'unexpected_failure') {
+        throw new Error('Could not register with this Reviewer ID. If it is already in use, choose another.');
+      }
+      if (error) throw new Error(error.message);
+      await api.auth.signOut({ scope: 'local' });
+      return 'Registration submitted. You can log in once your account is approved.';
+    });
+
+    wireAccountForm('login', async data => {
+      const id = reviewerId(data);
+      const password = data.get('password');
+      let { error } = await api.auth.signInWithPassword({ email: await accountEmail(id), password });
+      if (error?.code === 'invalid_credentials' && /^[a-z0-9_-]{3,30}$/i.test(id)) {
+        ({ error } = await api.auth.signInWithPassword({
+          email: id.toLowerCase() + '@rpad-dinner.example.com', password
+        }));
+      }
+      if (error) throw new Error('Sign-in failed. Check your Reviewer ID and password.');
+      await refreshMember();
+      if (!reviewer) {
+        await api.auth.signOut({ scope: 'local' });
+        return 'Your account is awaiting approval.';
+      }
+      location.hash = '#about-rpad';
+      return 'Signed in.';
+    });
+
+    logout.addEventListener('click', async () => {
+      const { error } = await api.auth.signOut({ scope: 'local' });
+      if (error) {
+        document.querySelector('#member-session').textContent = 'Could not sign out. Try again.';
+        return;
+      }
+      await refreshMember();
+      if (active) await loadReviews();
+    });
+
+    const rankingLinks = Array.from(document.querySelectorAll('[data-restaurant]'));
+    let scoreLoadVersion = 0;
+
+    function rankRestaurants(totals) {
+      const ranked = [...rankingLinks].sort((left, right) => {
+        const a = totals.get(left.dataset.restaurant);
+        const b = totals.get(right.dataset.restaurant);
+        if (!a || !b) return Number(Boolean(b)) - Number(Boolean(a));
+        return b.sum * a.count - a.sum * b.count;
+      });
+      ranked.forEach(link => {
+        const row = link.closest('tr');
+        const total = totals.get(link.dataset.restaurant);
+        const cell = row.lastElementChild;
+        cell.textContent = total ? (total.sum / total.count).toFixed(1) + ' / 5' : '';
+        if (total) add(cell, 'span', total.count + (total.count === 1 ? ' review' : ' reviews'), 'review-count');
+        row.parentElement.append(row);
+      });
+    }
+
+    async function loadScores() {
+      const version = ++scoreLoadVersion;
+      const totals = new Map();
+      for (let start = 0; ; start += 500) {
+        const { data, error } = await api.from('reviews').select('restaurant,rating').order('id').range(start, start + 499);
+        if (error) return;
+        data.forEach(review => {
+          const total = totals.get(review.restaurant) || { sum: 0, count: 0 };
+          total.sum += review.rating;
+          total.count++;
+          totals.set(review.restaurant, total);
+        });
+        if (data.length < 500) break;
+      }
+      if (version === scoreLoadVersion) rankRestaurants(totals);
+    }
+
+    function addCommentForm(article, review) {
+      const details = add(article, 'details', '', 'review-actions');
+      add(details, 'summary', 'Add a comment');
+      const form = add(details, 'form', '', 'review-form');
+      form.innerHTML = '<label>Comment <textarea name="body" maxlength="2000" rows="3" required></textarea></label>'
+        + '<button class="button button-primary">Publish comment</button>';
+      const button = form.querySelector('button');
+      form.addEventListener('submit', async event => {
+        event.preventDefault();
+        button.disabled = true;
+        try {
+          const { error } = await api.rpc('post_comment', {
+            p_review: review.id, p_body: new FormData(form).get('body').trim()
+          });
+          if (error) { status.textContent = 'Could not publish comment. Check your login and try again.'; return; }
+          await loadReviews();
+          status.textContent = 'Comment published.';
+        } finally {
+          button.disabled = false;
+        }
+      });
+    }
+
+    async function loadReviews() {
+      const version = ++loadVersion;
+      const { data: reviews, error } = await api.from('reviews')
+        .select('id,author,rating,strengths,weaknesses,created_at,comments(id,author,body,created_at)')
+        .eq('restaurant', active).order('created_at');
+      if (version !== loadVersion || !active) return;
+      if (error) { status.textContent = 'Could not load reviews. Try refreshing.'; return; }
+      list.replaceChildren();
+      const total = reviews.length;
+      page.querySelector('#review-count').textContent = total;
+      page.querySelector('#review-average').textContent = total
+        ? (reviews.reduce((sum, review) => sum + review.rating, 0) / total).toFixed(1) + ' / 5' : '—';
+      status.textContent = total ? '' : 'No reviews yet.';
+      const own = reviews.find(review => review.author === reviewer);
+      reviewForm.elements.rating.value = own?.rating ?? '';
+      reviewForm.elements.strengths.value = own?.strengths || '';
+      reviewForm.elements.weaknesses.value = own?.weaknesses || '';
+      reviews.forEach(review => {
+        const article = add(list, 'article', '', 'review');
+        add(article, 'h3', 'Review by ' + review.author);
+        const meta = add(article, 'p', '', 'review-meta');
+        add(meta, 'span', 'Restaurant review', 'badge');
+        meta.append(' · ' + new Date(review.created_at).toLocaleDateString());
+        const fields = add(article, 'dl', '', 'review-fields');
+        for (const [label, value] of [
+          ['Rating', review.rating + ' / 5 · ' + ratingLabels[review.rating]],
+          ['Strengths', review.strengths], ['Weaknesses', review.weaknesses]
+        ]) {
+          add(fields, 'dt', label, 'field-label');
+          add(fields, 'dd', value);
+        }
+        review.comments.sort((a, b) => a.created_at.localeCompare(b.created_at)).forEach(comment => {
+          const reply = add(article, 'div', '', 'reply');
+          add(reply, 'strong', comment.author);
+          add(reply, 'p', comment.body);
+        });
+        if (reviewer) addCommentForm(article, review);
+      });
+    }
+
+    reviewForm.addEventListener('submit', async event => {
+      event.preventDefault();
+      const button = reviewForm.querySelector('button');
+      const data = new FormData(reviewForm);
+      button.disabled = true;
+      try {
+        const { error } = await api.rpc('post_review', {
+          p_restaurant: active, p_rating: Number(data.get('rating')),
+          p_strengths: data.get('strengths').trim(), p_weaknesses: data.get('weaknesses').trim()
+        });
+        if (error) { status.textContent = 'Could not publish review. Check your login and try again.'; return; }
+        entry.open = false;
+        await Promise.all([loadReviews(), loadScores()]);
+        status.textContent = 'Review published.';
+      } finally {
+        button.disabled = false;
+      }
+    });
+
+    function showPage() {
+      const id = location.hash.startsWith('#restaurant/') ? location.hash.slice(12) : '';
+      active = Object.hasOwn(restaurantDescriptions, id) ? id : '';
+      page.hidden = !active;
+      document.querySelector('main').classList.toggle('show-restaurant', Boolean(active));
+      if (!active) return;
+      const title = page.querySelector('#restaurant-name');
+      const link = document.querySelector('[data-restaurant="' + active + '"]');
+      title.textContent = link.textContent;
+      page.querySelector('#restaurant-description').textContent = restaurantDescriptions[active];
+      const travelLine = page.querySelector('#restaurant-travel');
+      travelLine.replaceChildren();
+      add(travelLine, 'strong', 'Travel from CMU Newell-Simon Hall ', 'field-label');
+      travelLine.append(link.closest('tr').cells[1].querySelector('a').cloneNode(true));
+      list.replaceChildren();
+      page.querySelector('#review-count').textContent = '0';
+      page.querySelector('#review-average').textContent = '—';
+      reviewForm.reset();
+      entry.open = false;
+      status.textContent = api ? 'Loading reviews…' : 'Review service could not load. Refresh to try again.';
+      title.focus();
+      if (api) void loadReviews();
+    }
+
+    const restaurantForm = document.querySelector('#add-restaurant form');
+    const restaurantFeedback = document.querySelector('#restaurant-feedback');
+
+    async function loadMemberRestaurants() {
+      const body = document.querySelector('.rankings tbody');
+      for (let start = 0; ; start += 500) {
+        const {data, error} = await api.from('member_restaurants')
+          .select('id,name,description,address,mode,minutes').order('created_at').order('id').range(start, start + 499);
+        if (error) throw error;
+        for (const item of data) {
+          const id = 'member-' + item.id;
+          if (Object.hasOwn(restaurantDescriptions, id)) continue;
+          const row = body.insertRow();
+          const name = add(row, 'th', '');
+          name.scope = 'row';
+          const link = add(name, 'a', item.name);
+          link.href = '#restaurant/' + id;
+          link.dataset.restaurant = id;
+          const route = add(row.insertCell(), 'a', item.minutes + ' min');
+          const modes = {walking: ['Walk','walk'], transit: ['Bus','bus'], driving: ['Uber','car']};
+          const [label, icon] = modes[item.mode];
+          route.setAttribute('aria-label', label + ', about ' + item.minutes + ' minutes, open directions');
+          const glyph = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+          glyph.setAttribute('class', 'travel-icon');
+          glyph.setAttribute('aria-hidden', 'true');
+          const symbol = document.createElementNS('http://www.w3.org/2000/svg', 'use');
+          symbol.setAttribute('href', '#icon-' + icon);
+          glyph.append(symbol);
+          route.prepend(glyph, ' ');
+          const query = new URLSearchParams({
+            api: '1', origin: 'Newell-Simon Hall, Carnegie Mellon University, Pittsburgh, PA',
+            destination: item.address, travelmode: item.mode
+          });
+          route.href = 'https://www.google.com/maps/dir/?' + query;
+          row.insertCell();
+          restaurantDescriptions[id] = item.description;
+          rankingLinks.push(link);
+        }
+        if (data.length < 500) break;
+      }
+    }
+
+    restaurantForm.addEventListener('submit', async event => {
+      event.preventDefault();
+      const button = restaurantForm.querySelector('button');
+      const data = new FormData(restaurantForm);
+      button.disabled = true;
+      try {
+        const {error} = await api.rpc('add_restaurant', {
+          p_name: data.get('name').trim(), p_description: data.get('description').trim(),
+          p_address: data.get('address').trim(), p_mode: data.get('mode'), p_minutes: Number(data.get('minutes'))
+        });
+        if (error) {
+          restaurantFeedback.textContent = 'Could not publish the restaurant. Check your membership and form entries.';
+          return;
+        }
+        restaurantForm.reset();
+        restaurantForm.parentElement.open = false;
+        restaurantFeedback.textContent = 'Restaurant published.';
+        try {
+          await loadMemberRestaurants();
+          await loadScores();
+        } catch {
+          restaurantFeedback.textContent = 'Restaurant published. Refresh to see it in the rankings.';
+        }
+      } finally {
+        button.disabled = false;
+      }
+    });
+
+    window.addEventListener('hashchange', showPage);
+    showPage();
+    if (api) {
+      void loadMemberRestaurants().then(() => {
+        if (!active && location.hash.startsWith('#restaurant/member-')) showPage();
+        return loadScores();
+      }).catch(() => {
+        restaurantFeedback.textContent = 'Could not load member-added restaurants. Refresh to try again.';
+        void loadScores();
+      });
+      void refreshMember().then(() => active && loadReviews());
+    }
+  </script>
+</body>
+</html>
